@@ -73,7 +73,7 @@ export const Sidebar = ({ openSidebar, Close }: SidebarProps) => {
         {/* オーバーレイ */}
         {openSidebar && (
           <div
-            className="fixed inset-0 bg-black/50 z-50 md:hidden pointer-events-auto"
+            className="fixed inset-0 bg-black/50 dark:bg-slate-950/75 z-50 md:hidden pointer-events-auto"
             onClick={Close}
           />
         )}

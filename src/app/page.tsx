@@ -23,10 +23,8 @@ export default function Home() {
             Close={() => setOpenSidebar(false)}
           />
           {/* メインコンテンツ */}
-          <main className="flex flex-col flex-auto bg-transparent p-6 gap-4 overflow-hidden transition-all duration-300">
+          <main className="flex flex-col flex-1 bg-transparent p-6 gap-4 overflow-hidden transition-all duration-300">
             <TimelineCalendar />
-            {/* <Calendar instanceId="main" /> */}
-            {/* <EventList /> */}
           </main>
         </div>
       </div>

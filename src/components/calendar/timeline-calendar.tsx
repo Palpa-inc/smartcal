@@ -196,21 +196,21 @@ const TimelineCalendar: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="w-full h-[calc(100vh-120px)] relative overflow-auto bg-white rounded-xl"
+      className="w-full md:h-[calc(100vh-120px)] h-[calc(100vh-190px)] relative overflow-auto bg-white rounded-xl"
     >
       {/* ヘッダー（曜日） */}
-      <div className="z-30 grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
+      <div className="z-30 grid grid-cols-[55px_repeat(7,1fr)] md:grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
         <div className="border-b p-2 dark:border-gray-200 text-sm font-medium rounded-tl-xl flex items-center justify-between">
           <button
             onClick={() => handleWeekChange("prev")}
-            className="hover:bg-blue-50 rounded p-1"
+            className="hover:bg-blue-50 dark:hover:bg-blue-500 rounded"
             aria-label="前の週"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleWeekChange("next")}
-            className="hover:bg-blue-50 rounded p-1"
+            className="hover:bg-blue-50 dark:hover:bg-blue-500 rounded"
             aria-label="次の週"
           >
             <ChevronRight className="w-4 h-4" />
@@ -237,8 +237,8 @@ const TimelineCalendar: React.FC = () => {
       </div>
 
       {/* 終日予定セクションを追加 */}
-      <div className="grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200">
-        <div className="bg-background border-r border-b border-gray-200 p-2 pl-6 text-sm flex items-center">
+      <div className="grid grid-cols-[55px_repeat(7,1fr)] md:grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200">
+        <div className="bg-background border-r border-b border-gray-200 p-2 pl-[13px] md:pl-6 text-sm flex items-center">
           終日
         </div>
         {weekDays.map((day, index) => (
@@ -285,14 +285,14 @@ const TimelineCalendar: React.FC = () => {
         return (
           <div
             key={hour}
-            className={`grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200 ${
+            className={`grid grid-cols-[55px_repeat(7,1fr)] md:grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200 ${
               hour === 23 ? "rounded-bl-xl" : ""
             }`}
           >
             <div
               className={`bg-background border-r ${
                 hour < 23 ? "border-b" : "rounded-bl-xl"
-              } border-gray-200 p-2 text-sm flex justify-between items-center pl-5 ${
+              } border-gray-200 p-2 pl-[10px] md:pl-5 text-sm flex justify-between items-center ${
                 isCurrentHour ? "bg-yellow-100 text-yellow-500" : ""
               }`}
             >
@@ -317,7 +317,11 @@ const TimelineCalendar: React.FC = () => {
                 <div
                   key={`${day}-${hour}`}
                   className={`bg-background dark:bg-slate-700 ${
-                    hour < 23 ? "border-b" : ""
+                    hour < 23
+                      ? "border-b"
+                      : index === 6
+                      ? "rounded-br-xl"
+                      : "  "
                   } ${
                     index < 6 ? "border-r" : ""
                   } border-gray-100 relative min-h-[60px] ${
