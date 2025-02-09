@@ -264,6 +264,7 @@ export function CreateEventDialog({
             <Input
               {...register("title", { required: true })}
               placeholder="予定のタイトル"
+              className="dark:border-gray-400 dark:bg-gray-900"
             />
           </div>
           <div className="space-y-2">
@@ -274,7 +275,7 @@ export function CreateEventDialog({
                 setValue("calendarId", value);
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="dark:border-gray-400 dark:bg-gray-900">
                 <SelectValue placeholder="カレンダーを選択">
                   {watch("calendarId") ? (
                     <div className="flex items-center gap-2">
@@ -330,7 +331,7 @@ export function CreateEventDialog({
                   onChange={(e) => handleTextChange(e.target.value)}
                   placeholder={`7/19(金) 10:00 ~ 18:00
 7/20(土) 10:00 ~ 11:00 / 12:00 ~ 13:00, 15:00 ~ 16:00`}
-                  className="min-h-[70px]"
+                  className="min-h-[70px] dark:border-gray-400 dark:bg-gray-900"
                 />
                 <p className="text-xs text-muted-foreground">
                   1行に1日分の候補を入力してください。
@@ -339,11 +340,11 @@ export function CreateEventDialog({
                   で区切ってください。
                 </p>
                 {dateText && (
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="flex flex-wrap gap-2 ">
                     {parsedDates.map((parsed, index) => (
                       <div
                         key={index}
-                        className="group flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-primary/10 text-primary border border-primary/20"
+                        className="group flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-primary/10 dark:bg-blue-500 text-primary border border-primary/20"
                       >
                         <span>
                           {formatParsedDate(
@@ -354,7 +355,7 @@ export function CreateEventDialog({
                         </span>
                         <button
                           onClick={() => removeParsedDate(index)}
-                          className="ml-1 text-destructive transition-opacity duration-300"
+                          className="ml-1 text-destructive dark:text-white  transition-opacity duration-300"
                         >
                           ×
                         </button>
@@ -363,7 +364,7 @@ export function CreateEventDialog({
                   </div>
                 )}
                 {dateText && parsedDates.length === 0 && (
-                  <p className="text-xs text-destructive">
+                  <p className="text-xs text-destructive dark:text-red-400">
                     有効な候補日が見つかりません。入力形式を確認してください。
                   </p>
                 )}
@@ -378,7 +379,7 @@ export function CreateEventDialog({
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal dark:border-gray-400 dark:bg-gray-900",
                         !watch("date") && "text-muted-foreground"
                       )}
                     >
@@ -415,11 +416,19 @@ export function CreateEventDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">開始時間</label>
-                  <Input type="time" {...register("startTime")} />
+                  <Input
+                    type="time"
+                    {...register("startTime")}
+                    className="dark:border-gray-400 dark:bg-gray-900"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">終了時間</label>
-                  <Input type="time" {...register("endTime")} />
+                  <Input
+                    type="time"
+                    {...register("endTime")}
+                    className="dark:border-gray-400 dark:bg-gray-900"
+                  />
                 </div>
               </div>
               <div className="space-y-2">
@@ -427,6 +436,7 @@ export function CreateEventDialog({
                 <Textarea
                   {...register("description")}
                   placeholder="予定の詳細"
+                  className="dark:border-gray-400 dark:bg-gray-900"
                 />
               </div>
             </>

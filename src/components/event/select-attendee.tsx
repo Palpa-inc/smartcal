@@ -40,7 +40,7 @@ export function AttendeeSelect({
             <Badge
               key={attendee.email}
               variant="secondary"
-              className="flex items-center gap-1 max-w-[300px] cursor-pointer"
+              className="flex items-center gap-1 max-w-[300px] cursor-pointer dark:border-gray-400 dark:bg-gray-900"
               onClick={() => onRemoveAttendee(attendee.email)}
             >
               <span className="truncate">
