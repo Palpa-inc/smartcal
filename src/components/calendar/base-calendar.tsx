@@ -130,14 +130,16 @@ export function Calendar({ instanceId }: CalendarProps) {
           {weeks.map((week, weekIndex) =>
             week.map(({ date, isCurrentMonth, events }, dayIndex) => {
               const hasEvents = events.length > 0;
-              const isDateSelected = isSelected(currentDate, date);
+              const isDateSelected =
+                currentDate.getFullYear() === date.getFullYear() &&
+                currentDate.getMonth() === date.getMonth() &&
+                currentDate.getDate() === date.getDate();
               return (
                 <div
                   key={`${weekIndex}-${dayIndex}`}
                   className={cn(calendarStyles.day, {
                     [calendarStyles.dayMuted]: !isCurrentMonth,
                     [calendarStyles.dayToday]: isToday(date),
-                    // [calendarStyles.daySelected]: isDateSelected,
                   })}
                   onClick={() => setDate(date)}
                 >

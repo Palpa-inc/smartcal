@@ -252,7 +252,7 @@ const TimelineCalendar: React.FC = () => {
           >
             {getAllDayEvents(day).map((event) => (
               <div
-                key={event.id}
+                key={`${event.id}-timeline-calendar`}
                 className="m-1 p-1 rounded-md shadow-sm text-sm cursor-pointer overflow-hidden"
                 style={{
                   backgroundColor: calendars.find(
@@ -378,11 +378,11 @@ const TimelineCalendar: React.FC = () => {
 
                     return (
                       <div
-                        key={event.id}
-                        className={`absolute left-0 right-1 ml-[1px] mt-0.5 pt-0.5 pl-1.5 rounded-md shadow-sm text-sm transition-colors cursor-pointer whitespace-nowrap overflow-hidden`}
+                        key={`${event.id}-${index}-${event.parentEmail}-timeline-calendar`}
+                        className={`absolute left-0 right-1 ml-1 mt-0.5 pt-0.5 pl-1.5 border border-gray-100 rounded-md shadow-sm text-sm transition-colors cursor-pointer whitespace-nowrap overflow-hidden`}
                         style={{
                           ...eventStyle,
-                          width: `calc(${consecutiveDays * 100}% - 2px)`,
+                          width: `calc(${consecutiveDays * 100}% - 8px)`,
                           zIndex: consecutiveDays === 1 ? 20 : 10, // 単発の予定は z-index を高く設定
                           backgroundColor: calendars.find(
                             (calendar) => calendar.email === event.parentEmail
@@ -390,11 +390,6 @@ const TimelineCalendar: React.FC = () => {
                           color: calendars.find(
                             (calendar) => calendar.email === event.parentEmail
                           )?.color?.foreground,
-                          border: `1px solid ${
-                            calendars.find(
-                              (calendar) => calendar.email === event.parentEmail
-                            )?.color?.foreground
-                          }`,
                         }}
                         onClick={() => {
                           setSelectedEvent(event);

@@ -85,7 +85,7 @@ export const Calendars = () => {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-4">
               {calendars.length > 0 && (
                 <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
                   {calendars.map((calendar) => (
@@ -115,18 +115,6 @@ export const Calendars = () => {
                           )
                         }
                       />
-                      {/* <TooltipProvider delayDuration={100}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="truncate flex-1 hover:cursor-help">
-                              {calendar.displayName || calendar.email}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{calendar.email}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
 
                       <Dialog
                         open={selectedCalendar?.email === calendar.email}

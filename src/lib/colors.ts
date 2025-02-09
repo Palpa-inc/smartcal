@@ -51,7 +51,7 @@ export const colorPresets = [
   {
     name: "アンバー",
     background: "#F6BF26",
-    foreground: "#000000",
+    foreground: "#212121",
   },
   // パープル系
   {
@@ -84,6 +84,78 @@ export const colorPresets = [
   {
     name: "ラベンダー",
     background: "#B39DDB",
+    foreground: "#FFFFFF",
+  },
+  // モダンカラー
+  {
+    name: "セージグリーン",
+    background: "#87A989",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "ダスティローズ",
+    background: "#D4A5A5",
+    foreground: "#212121",
+  },
+  {
+    name: "ミッドナイトブルー",
+    background: "#1B3A57",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "テラコッタ",
+    background: "#E07A5F",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "マスタード",
+    background: "#E3B448",
+    foreground: "#212121",
+  },
+  {
+    name: "モスグリーン",
+    background: "#606C38",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "スレートブルー",
+    background: "#7B8FA1",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "メイブルーシュ",
+    background: "#F2D4D7",
+    foreground: "#212121",
+  },
+  // モダンカラー（追加）
+  {
+    name: "プラム",
+    background: "#8E4585",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "モーブ",
+    background: "#9F8BA3",
+    foreground: "#FFFFFF",
+  },
+  {
+    name: "ライラック",
+    background: "#C8A2C8",
+    foreground: "#212121",
+  },
+  {
+    name: "ハニーゴールド",
+    background: "#DBA858",
+    foreground: "#212121",
+  },
+  {
+    name: "バターカップ",
+    background: "#FAD02C",
+    foreground: "#212121",
+  },
+  {
+    name: "オーカー",
+    background: "#CC9544",
     foreground: "#FFFFFF",
   },
 ];
