@@ -55,3 +55,41 @@ export async function GET(request: Request, { params }: Props) {
     );
   }
 }
+
+export async function POST(request: Request, { params }: Props) {
+  const { calendarId } = await params;
+
+  try {
+    const token = await getToken({
+      req: request,
+      secret: process.env.AUTH_SECRET,
+    });
+
+    if (!token || !token.accessToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: token.accessToken as string,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+    const eventData = await request.json();
+
+    console.log("イベントデータ", eventData);
+
+    const response = await calendar.events.insert({
+      calendarId: calendarId,
+      requestBody: eventData,
+    });
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    console.error("[GoogleCalendar API Error]", error);
+    return NextResponse.json(
+      { error: "Failed to create calendar event" },
+      { status: 500 }
+    );
+  }
+}

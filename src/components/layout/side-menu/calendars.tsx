@@ -12,12 +12,17 @@ import { Plus, Loader2, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CalendarInfo } from "@/types/calendar";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { updateCalendarColorInFirestore } from "@/lib/firebase/calendar";
+  updateCalendarColorInFirestore,
+  updateCalendarDisplayNameInFirestore,
+} from "@/lib/firebase/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export const Calendars = () => {
   const { userData, calendars, refreshCalendarData, handleToggleCalendar } =
@@ -25,6 +30,10 @@ export const Calendars = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [editingDisplayName, setEditingDisplayName] = useState("");
+  const [selectedCalendar, setSelectedCalendar] = useState<CalendarInfo | null>(
+    null
+  );
 
   const handleSync = async (calendar: CalendarInfo) => {
     setIsSyncing(true);
@@ -35,14 +44,29 @@ export const Calendars = () => {
       return;
     }
 
-    console.log("calendar", calendar);
-
     try {
       refreshCalendarData(calendar);
     } catch (error) {
       console.error("Failed to sync calendars:", error);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleUpdateDisplayName = async (
+    calendar: CalendarInfo,
+    newDisplayName: string
+  ) => {
+    if (!userData?.uid) return;
+    try {
+      await updateCalendarDisplayNameInFirestore(
+        userData.uid,
+        calendar.email,
+        newDisplayName
+      );
+      setSelectedCalendar(null);
+    } catch (error) {
+      console.error("Failed to update display name:", error);
     }
   };
 
@@ -91,7 +115,7 @@ export const Calendars = () => {
                           )
                         }
                       />
-                      <TooltipProvider delayDuration={100}>
+                      {/* <TooltipProvider delayDuration={100}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="truncate flex-1 hover:cursor-help">
@@ -102,7 +126,62 @@ export const Calendars = () => {
                             <p>{calendar.email}</p>
                           </TooltipContent>
                         </Tooltip>
-                      </TooltipProvider>
+                      </TooltipProvider> */}
+
+                      <Dialog
+                        open={selectedCalendar?.email === calendar.email}
+                        onOpenChange={(open) => {
+                          if (!open) setSelectedCalendar(null);
+                          if (open) {
+                            setSelectedCalendar(calendar);
+                            setEditingDisplayName(
+                              calendar.displayName || calendar.email
+                            );
+                          }
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <div className="truncate flex-1 cursor-pointer">
+                            {calendar.displayName || calendar.email}
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>カレンダー名の編集</DialogTitle>
+                          </DialogHeader>
+                          <div className="flex flex-col gap-4">
+                            <Input
+                              value={editingDisplayName}
+                              onChange={(e) =>
+                                setEditingDisplayName(e.target.value)
+                              }
+                              placeholder="カレンダー名"
+                            />
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setSelectedCalendar(null)}
+                              >
+                                キャンセル
+                              </Button>
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  if (selectedCalendar) {
+                                    handleUpdateDisplayName(
+                                      selectedCalendar,
+                                      editingDisplayName
+                                    );
+                                  }
+                                }}
+                              >
+                                保存
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
 
                       <Button
                         type="button"

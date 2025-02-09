@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Calendars } from "./side-menu/calendars";
 import { Keywords } from "./side-menu/keywords";
 import { Calendar } from "../calendar/base-calendar";
-import { EventList } from "../event/base-event";
 import { Button } from "../ui/button";
 import { CalendarPlus, CalendarClock } from "lucide-react";
 import { CreateEventDialog } from "../event/create-event";
@@ -46,7 +45,7 @@ export const Sidebar = ({ openSidebar, Close }: SidebarProps) => {
   return (
     <>
       {/* デスクトップ表示 */}
-      <aside className="hidden md:block w-72 bg-white dark:bg-background border-r border-gray-200 dark:border-gray-700 p-4">
+      <aside className="hidden md:block w-72 bg-white dark:bg-background border-r border-gray-200 dark:border-gray-700 p-4 z-50">
         <SidebarContent handleCreateEventClick={handleCreateEventClick} />
       </aside>
 

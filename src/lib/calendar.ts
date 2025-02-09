@@ -1,5 +1,4 @@
 import { CalendarEvent } from "@/types/calendar";
-
 export const weekDays = ["月", "火", "水", "木", "金", "土", "日"];
 
 export const getDaysInMonth = (date: Date) => {
@@ -37,11 +36,7 @@ export const getDaysInMonth = (date: Date) => {
 
 export const isToday = (date: Date) => {
   const today = new Date();
-  return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
-  );
+  return today.toDateString() === date.toDateString();
 };
 
 export const isSelected = (date: Date, selectedDate: Date | null) => {

@@ -52,19 +52,13 @@ export const useAuth = () => {
     const userRef = doc(db, "users", user.uid);
     const unsubscribe = onSnapshot(userRef, (doc) => {
       if (doc.exists()) {
-        console.log("doc.data()", doc.data());
+        // console.log("doc.data()", doc.data());
         setUserData(doc.data() as UserData);
       }
     });
 
     return () => unsubscribe();
   }, [user, db]);
-
-  useEffect(() => {
-    if (userData) {
-      console.log("userData", userData);
-    }
-  }, [userData]);
 
   // Googleアカウントでログイン
   const signInWithGoogle = async () => {

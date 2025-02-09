@@ -7,22 +7,19 @@ import React, {
 } from "react";
 import { useCalendar } from "@/contexts/CalendarContext";
 import { CalendarEvent } from "@/types/calendar";
-import { getTimeStatus } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import { ja } from "date-fns/locale";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LoadingSpinner } from "../ui/loading-spinner";
+import { EventDialog } from "../event/detail-event";
 
 const TimelineCalendar: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { allEvents, date, setDate, calendars, loading } = useCalendar();
-  // 折りたたみ状態を管理するstate
-  const [collapsedHours, setCollapsedHours] = useState<number[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
+  const [isOpen, setIsOpen] = useState(false);
 
   // 初期スクロール位置を設定
   useEffect(() => {
@@ -73,32 +70,6 @@ const TimelineCalendar: React.FC = () => {
     },
     [eventsByDayAndHour]
   );
-
-  // 前の時間帯が空いているかチェックする関数を修正
-  const isPreviousHourEmpty = (hour: number, day: Date): boolean => {
-    if (hour === 0) return false;
-
-    // 現在の時間帯の最後の30分をチェック
-    const slotEnd = new Date(day);
-    slotEnd.setHours(hour, 0, 0, 0);
-
-    const slotStart = new Date(day);
-    slotStart.setHours(hour - 1, 30, 0, 0);
-
-    // この時間範囲に含まれるイベントをチェック
-    return !allEvents.some((event) => {
-      if (!event.start.dateTime || !event.end.dateTime) return false;
-      const eventStart = new Date(event.start.dateTime);
-      const eventEnd = new Date(event.end.dateTime);
-
-      // イベントが時間範囲と重なっているかチェック
-      const hasOverlap = eventStart < slotEnd && eventEnd > slotStart;
-      // イベントが同じ日かチェック
-      const isEventOnSameDay = isSameDay(day, eventStart);
-
-      return isEventOnSameDay && hasOverlap;
-    });
-  };
 
   // hasEventsInTimeSlot を修正して半時間ごとのチェックができるようにする
   const hasEventsInTimeSlot = useCallback(
@@ -228,7 +199,7 @@ const TimelineCalendar: React.FC = () => {
       className="w-full h-[calc(100vh-120px)] overflow-auto bg-white rounded-xl"
     >
       {/* ヘッダー（曜日） */}
-      <div className="z-50 grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
+      <div className="z-40 grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
         <div className="border-b p-2 dark:border-gray-200 text-sm font-medium rounded-tl-xl flex items-center justify-between">
           <button
             onClick={() => handleWeekChange("prev")}
@@ -267,7 +238,7 @@ const TimelineCalendar: React.FC = () => {
 
       {/* 終日予定セクションを追加 */}
       <div className="grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200">
-        <div className="bg-background border-r border-b border-gray-200 p-2 text-sm flex items-center">
+        <div className="bg-background border-r border-b border-gray-200 p-2 pl-6 text-sm flex items-center">
           終日
         </div>
         {weekDays.map((day, index) => (
@@ -316,7 +287,7 @@ const TimelineCalendar: React.FC = () => {
             <div
               className={`bg-background border-r ${
                 hour < 23 ? "border-b" : "rounded-bl-xl"
-              } border-gray-200 p-2 text-sm flex justify-between items-center`}
+              } border-gray-200 p-2 text-sm flex justify-between items-center pl-5`}
             >
               {`${hour.toString().padStart(2, "0")}:00`}
             </div>
@@ -333,12 +304,11 @@ const TimelineCalendar: React.FC = () => {
               );
               const isFullHourEmpty =
                 !hasEventsFirstHalf && !hasEventsSecondHalf;
-              const showPreviousEmpty = !isPreviousHourEmpty(hour, day);
 
               return (
                 <div
                   key={`${day}-${hour}`}
-                  className={`${hour < 23 ? "border-b" : ""} ${
+                  className={` ${hour < 23 ? "border-b" : ""} ${
                     index < 6 ? "border-r" : ""
                   } border-gray-100 relative min-h-[60px] ${
                     isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
@@ -404,16 +374,12 @@ const TimelineCalendar: React.FC = () => {
                       index,
                       hour
                     );
-                    const otherEventsCount = getEventsForHourAndDay(
-                      hour,
-                      day
-                    ).filter((e) => e.summary !== event.summary).length;
                     const eventStyle = calculateEventStyle(event);
 
                     return (
                       <div
                         key={event.id}
-                        className={`absolute left-0 right-1 ml-0.5 mt-0.5 pt-0.5 pl-1.5 rounded-md shadow-sm text-sm transition-colors cursor-pointer whitespace-nowrap overflow-hidden`}
+                        className={`absolute left-0 right-1 ml-[1px] mt-0.5 pt-0.5 pl-1.5 rounded-md shadow-sm text-sm transition-colors cursor-pointer whitespace-nowrap overflow-hidden`}
                         style={{
                           ...eventStyle,
                           width: `calc(${consecutiveDays * 100}% - 2px)`,
@@ -429,6 +395,10 @@ const TimelineCalendar: React.FC = () => {
                               (calendar) => calendar.email === event.parentEmail
                             )?.color?.foreground
                           }`,
+                        }}
+                        onClick={() => {
+                          setSelectedEvent(event);
+                          setIsOpen(true);
                         }}
                       >
                         <div className="flex items-center gap-1 mt-0.5">
@@ -448,6 +418,12 @@ const TimelineCalendar: React.FC = () => {
           <LoadingSpinner />
         </div>
       )}
+
+      <EventDialog
+        event={selectedEvent}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
     </div>
   );
 };

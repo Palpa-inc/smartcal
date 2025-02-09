@@ -23,12 +23,22 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { AttendeeSelect } from "@/components/event/select-attendee";
 import { useForm } from "react-hook-form";
 import { useCalendar } from "@/contexts/CalendarContext";
+import { toJSTDate } from "@/lib/utils";
+import { format } from "date-fns";
+import { ja } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CreateEventDialogProps {
   isOpen: boolean;
   onClose: () => void;
   isTantitive?: boolean;
-  //   onCreateEvent: (event: NewCalendarEvent) => Promise<boolean>;
 }
 
 interface Attendee {
@@ -46,19 +56,19 @@ interface FormValues {
   title: string;
   description: string;
   calendarId: string;
+  date: string;
   startTime: string;
   endTime: string;
+  attendees: Attendee[];
 }
 
 export function CreateEventDialog({
   isOpen,
   onClose,
   isTantitive = false,
-}: //   onCreateEvent,
-CreateEventDialogProps) {
-  const { calendars, allEvents: events, date } = useCalendar();
+}: CreateEventDialogProps) {
+  const { calendars, allEvents: events, date, onCreateEvent } = useCalendar();
   const [isCreating, setIsCreating] = useState(false);
-  const [attendees, setAttendees] = useState<Attendee[]>([]);
 
   const [dateText, setDateText] = useState("");
   const [parsedDates, setParsedDates] = useState<ParsedDate[]>([]);
@@ -68,26 +78,28 @@ CreateEventDialogProps) {
     handleSubmit,
     watch,
     reset,
-    formState: { errors },
+    setValue,
+    formState: {},
   } = useForm<FormValues>({
     defaultValues: {
       title: "",
       description: "",
       calendarId: "",
-      startTime: "09:00",
-      endTime: "10:00",
+      date: date ? toJSTDate(date).toISOString().split("T")[0] : "",
+      startTime: date ? toJSTDate(date).toISOString().split("T")[1] : "",
+      endTime: date ? toJSTDate(date).toISOString().split("T")[1] : "",
+      attendees: [],
     },
   });
 
-  const selectedCalendar = watch("calendarId");
-
   const suggestedAttendees = useMemo(() => {
-    if (!selectedCalendar) return [];
+    if (!watch("calendarId")) return [];
 
     const attendeeSet = new Set<string>();
+
     events
       .filter(
-        (event) => event.calendarId === selectedCalendar && event.attendees
+        (event) => event.parentEmail === watch("calendarId") && event.attendees
       )
       .forEach((event) => {
         event.attendees?.forEach((attendee: Attendee) => {
@@ -101,28 +113,28 @@ CreateEventDialogProps) {
       });
 
     return Array.from(attendeeSet).map((str) => JSON.parse(str));
-  }, [selectedCalendar, events]);
+  }, [watch("calendarId"), events]);
 
   const addAttendee = (attendee: Attendee) => {
-    if (!attendees.some((a) => a.email === attendee.email)) {
-      setAttendees([...attendees, attendee]);
-    }
+    setValue("attendees", [...watch("attendees"), attendee]);
   };
 
   const removeAttendee = (email: string) => {
-    setAttendees(attendees.filter((a) => a.email !== email));
+    setValue(
+      "attendees",
+      watch("attendees").filter((a: Attendee) => a.email !== email)
+    );
   };
 
   const onSubmit = async (data: FormValues) => {
-    if (!date) return;
-
+    setIsCreating(true);
     const [startHour, startMinute] = data.startTime.split(":").map(Number);
     const [endHour, endMinute] = data.endTime.split(":").map(Number);
 
-    const start = new Date(date);
+    const start = new Date(data.date);
     start.setHours(startHour, startMinute, 0);
 
-    const end = new Date(date);
+    const end = new Date(data.date);
     end.setHours(endHour, endMinute, 0);
 
     const newEvent: NewCalendarEvent = {
@@ -137,15 +149,17 @@ CreateEventDialogProps) {
         timeZone: "Asia/Tokyo",
       },
       calendarId: data.calendarId,
-      attendees: attendees.map((a) => ({ email: a.email })),
+      attendees: watch("attendees").map((a: Attendee) => ({
+        email: a.email,
+      })),
     };
 
-    // const success = await onCreateEvent(newEvent);
-    // if (success) {
-    //   onClose();
-    //   reset();
-    //   setAttendees([]);
-    // }
+    const success = await onCreateEvent(newEvent);
+    if (success) {
+      onClose();
+      reset();
+    }
+    setIsCreating(false);
   };
 
   // 日付テキストをパースする関数
@@ -241,7 +255,10 @@ CreateEventDialogProps) {
             {isTantitive ? "仮押さえ候補日を作成" : "予定を作成"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 py-4 px-2 max-h-[70svh] overflow-y-auto"
+        >
           <div className="space-y-2">
             <label className="text-sm font-medium">タイトル</label>
             <Input
@@ -252,30 +269,31 @@ CreateEventDialogProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">カレンダー</label>
             <Select
-              value={selectedCalendar}
+              value={watch("calendarId")}
               onValueChange={(value) => {
-                register("calendarId").onChange({ target: { value } });
+                setValue("calendarId", value);
               }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="カレンダーを選択">
-                  {selectedCalendar && (
+                  {watch("calendarId") ? (
                     <div className="flex items-center gap-2">
                       <div
                         className="w-3 h-3 rounded-full"
                         style={{
                           backgroundColor:
-                            calendars.find((cal) => cal.id === selectedCalendar)
-                              ?.color?.background || "#039BE5",
+                            calendars.find(
+                              (cal) => cal.id === watch("calendarId")
+                            )?.color?.background || "#039BE5",
                         }}
                       />
-                      {calendars.find((cal) => cal.id === selectedCalendar)
+                      {calendars.find((cal) => cal.id === watch("calendarId"))
                         ?.displayName ||
-                        calendars.find((cal) => cal.id === selectedCalendar)
-                          ?.displayName ||
-                        calendars.find((cal) => cal.id === selectedCalendar)
+                        calendars.find((cal) => cal.id === watch("calendarId"))
                           ?.email}
                     </div>
+                  ) : (
+                    "カレンダーを選択"
                   )}
                 </SelectValue>
               </SelectTrigger>
@@ -353,6 +371,47 @@ CreateEventDialogProps) {
             </>
           ) : (
             <>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">日付</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !watch("date") && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {watch("date") ? (
+                        format(new Date(watch("date")), "PPP", { locale: ja })
+                      ) : (
+                        <span>日付を選択</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        watch("date") ? new Date(watch("date")) : undefined
+                      }
+                      onSelect={(date) => {
+                        if (date) {
+                          // 日付のみを取得し、時間を09:00:00に設定することで
+                          // 確実に日本時間の当日として扱われるようにする
+                          const jstDate = new Date(date);
+                          jstDate.setHours(9, 0, 0, 0);
+                          setValue("date", jstDate.toISOString().split("T")[0]);
+                        } else {
+                          setValue("date", "");
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">開始時間</label>
@@ -373,12 +432,12 @@ CreateEventDialogProps) {
             </>
           )}
           <AttendeeSelect
-            attendees={attendees}
+            attendees={watch("attendees")}
             suggestedAttendees={suggestedAttendees}
             onAddAttendee={addAttendee}
             onRemoveAttendee={removeAttendee}
           />
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
               キャンセル
             </Button>

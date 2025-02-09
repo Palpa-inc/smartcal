@@ -2,8 +2,6 @@
 import { CalendarProvider } from "@/contexts/CalendarContext";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Calendar } from "@/components/calendar/base-calendar";
-import { EventList } from "@/components/event/base-event";
 import TimelineCalendar from "@/components/calendar/timeline-calendar";
 import { useState } from "react";
 

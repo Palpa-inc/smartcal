@@ -4,13 +4,14 @@ import {
   CalendarEvent,
   CalendarInfo,
   CalendarDataByEmail,
+  NewCalendarEvent,
 } from "@/types/calendar";
-import { toJSTDate } from "@/lib/utils";
 import {
   getCalendarDataFromFirestore,
   saveCalendarDataToFirestore,
   subscribeToCalendarUpdates,
   isDataStale,
+  addEventToFirestore,
 } from "@/lib/firebase/calendar";
 import { useAuth } from "./useAuth";
 import { useSession } from "next-auth/react";
@@ -18,7 +19,7 @@ import { useSession } from "next-auth/react";
 export function useGoogleCalendar(userId: string) {
   const { data: session } = useSession();
   const { userData } = useAuth();
-  const [date, setDate] = useState<Date>(toJSTDate());
+  const [date, setDate] = useState<Date>(new Date());
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,8 +43,6 @@ export function useGoogleCalendar(userId: string) {
             !userData?.hideKeywords.includes(event.description || "")
         )
     );
-
-  console.log("allEvents", allEvents);
 
   // カレンダーのデータを更新
   const refreshCalendarData = async (selectedCalendars: CalendarInfo) => {
@@ -101,6 +100,48 @@ export function useGoogleCalendar(userId: string) {
     }
   };
 
+  const registerCalendarData = async (userId: string, email: string) => {
+    if (!userId) {
+      setError("ユーザーIDが見つかりません");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data } = await axios.get<{
+        email: string;
+        events: CalendarEvent[];
+      }>("/api/googleCalendar/" + email);
+
+      console.log("registerCalendarData data", data);
+
+      await saveCalendarDataToFirestore(userId, email, {
+        events: data.events,
+        calendarInfo: {
+          id: email,
+          email: email,
+          displayName: "",
+          color: null,
+          isShown: true,
+        },
+        lastUpdated: new Date(),
+      });
+      // 保存したデータを取得
+      const firestoreData = await getCalendarDataFromFirestore(userId);
+      if (!firestoreData) {
+        console.error("firestoreData is undefined");
+        return;
+      }
+      setAccounts(firestoreData);
+    } catch (err) {
+      console.error("Error in registerCalendarData:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // カレンダーの表示/非表示を切り替える
   const handleToggleCalendar = (email: string) => {
     setCalendars((prevCalendars) =>
@@ -111,6 +152,17 @@ export function useGoogleCalendar(userId: string) {
       )
     );
   };
+
+  const onCreateEvent = async (event: NewCalendarEvent) => {
+    const response = await axios.post(
+      `/api/googleCalendar/${event.calendarId}`,
+      event
+    );
+    const data = response.data;
+    await addEventToFirestore(userId, event.calendarId, data);
+    return true;
+  };
+
   // カレンダーのデータを読み込む
   useEffect(() => {
     const loadInitialData = async () => {
@@ -138,12 +190,16 @@ export function useGoogleCalendar(userId: string) {
                 "not session account. current account",
                 session?.user.email
               );
+              if (data && !data[session?.user.email]) {
+                await registerCalendarData(userId, session?.user.email);
+              }
             }
           }
         }
 
         if (!data) {
-          console.error("data is undefined");
+          console.log("data is undefined");
+          await registerCalendarData(userId, session?.user.email);
           return;
         }
 
@@ -177,9 +233,31 @@ export function useGoogleCalendar(userId: string) {
   // カレンダーのデータをリアルタイムで更新
   useEffect(() => {
     if (userId) {
-      subscribeToCalendarUpdates(userId, (calendarData) => {
+      const unsubscribe = subscribeToCalendarUpdates(userId, (calendarData) => {
+        if (!calendarData) return;
         setAccounts(calendarData);
+
+        setCalendars((prevCalendars) => {
+          const updatedCalendars = Object.entries(calendarData).map(
+            ([email, accountData]) => {
+              const existingCalendar = prevCalendars.find(
+                (cal) => cal.email === email
+              );
+              return {
+                ...accountData.calendars,
+                email: email,
+                id: email,
+                isShown: existingCalendar ? existingCalendar.isShown : true,
+              };
+            }
+          );
+          return updatedCalendars;
+        });
       });
+
+      return () => {
+        if (unsubscribe) unsubscribe();
+      };
     }
   }, [userId]);
 
@@ -192,5 +270,6 @@ export function useGoogleCalendar(userId: string) {
     setDate,
     refreshCalendarData,
     handleToggleCalendar,
+    onCreateEvent,
   };
 }

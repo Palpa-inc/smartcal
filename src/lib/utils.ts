@@ -32,7 +32,8 @@ export const formatDateOnly = (date: Date | string) => {
 };
 
 export function toJSTDate(date: Date = new Date()): Date {
-  const jstDate = new Date(date);
+  // UTCの日付をJST（UTC+9）に変換
+  const jstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
   jstDate.setHours(0, 0, 0, 0);
   return jstDate;
 }

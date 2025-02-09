@@ -136,6 +136,46 @@ export const updateCalendarColorInFirestore = async (
   );
 };
 
+export const updateCalendarDisplayNameInFirestore = async (
+  userId: string,
+  email: string,
+  displayName: string
+) => {
+  if (!userId) {
+    console.error("userId is required");
+    return;
+  }
+  if (!email) {
+    console.error("email is required");
+    return;
+  }
+  if (!displayName) throw new Error("displayName is required");
+
+  const userCalendarsRef = collection(db, "calendars", userId, "accounts");
+  const calendarDoc = doc(userCalendarsRef, email);
+
+  const docSnap = await getDoc(calendarDoc);
+  if (!docSnap.exists()) {
+    console.error("Calendar document not found");
+    return;
+  }
+
+  const currentData = docSnap.data();
+  const updatedCalendarInfo = {
+    ...currentData.calendarInfo,
+    displayName: displayName,
+  };
+
+  await setDoc(
+    calendarDoc,
+    {
+      ...currentData,
+      calendarInfo: updatedCalendarInfo,
+    },
+    { merge: true }
+  );
+};
+
 export const subscribeToCalendarUpdates = (
   userId: string,
   callback: (calendarData: CalendarDataByEmail) => void
@@ -164,4 +204,35 @@ export const subscribeToCalendarUpdates = (
 
     callback(calendarDataByEmail);
   });
+};
+
+export const addEventToFirestore = async (
+  userId: string,
+  email: string,
+  newEvent: CalendarEvent
+) => {
+  if (!userId) throw new Error("userId is required");
+  if (!email) throw new Error("email is required");
+  if (!newEvent) throw new Error("event is required");
+
+  const userCalendarsRef = collection(db, "calendars", userId, "accounts");
+  const calendarDoc = doc(userCalendarsRef, email);
+
+  const docSnap = await getDoc(calendarDoc);
+  if (!docSnap.exists()) {
+    throw new Error("Calendar document not found");
+  }
+
+  const currentData = docSnap.data();
+  const updatedEvents = [...(currentData.events || []), newEvent];
+
+  await setDoc(
+    calendarDoc,
+    {
+      ...currentData,
+      events: updatedEvents,
+      lastUpdated: new Date(),
+    },
+    { merge: true }
+  );
 };

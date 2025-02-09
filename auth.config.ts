@@ -19,8 +19,14 @@ export const nextAuthOptions: NextAuthConfig = {
       authorization: {
         params: {
           // Google OAuth画面で求めるスコープを指定
-          scope:
-            "openid email profile https://www.googleapis.com/auth/calendar.readonly",
+          scope: [
+            "openid",
+            "email",
+            "profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/calendar.readonly",
+            "https://www.googleapis.com/auth/calendar.events",
+          ].join(" "),
           // access_typeをofflineにしておくとリフレッシュトークンが取得できる
           access_type: "offline",
           prompt: "consent",

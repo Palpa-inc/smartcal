@@ -59,7 +59,7 @@ export const Header = ({ Open }: HeaderProps) => {
   );
 
   return (
-    <header className="border-b border-gray-200 dark:border-gray-100/50 bg-background sticky top-0 z-[99]">
+    <header className="border-b border-gray-200 dark:border-gray-100/50 bg-background sticky top-0 z-40">
       <div className="p-4 px-6 md:px-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button

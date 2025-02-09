@@ -1,6 +1,10 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useGoogleCalendar } from "@/hooks/useCalendar";
-import { CalendarEvent, CalendarInfo } from "@/types/calendar";
+import {
+  CalendarEvent,
+  CalendarInfo,
+  NewCalendarEvent,
+} from "@/types/calendar";
 import { useAuth } from "@/hooks/useAuth";
 import { UserData } from "@/types/user";
 type CalendarContextType = {
@@ -12,6 +16,7 @@ type CalendarContextType = {
   setDate: (date: Date) => void;
   refreshCalendarData: (selectedCalendars: CalendarInfo) => void;
   handleToggleCalendar: (email: string) => void;
+  onCreateEvent: (event: NewCalendarEvent) => Promise<boolean>;
   userData: UserData | null;
 };
 
