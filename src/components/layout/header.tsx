@@ -60,8 +60,8 @@ export const Header = ({ Open }: HeaderProps) => {
 
   return (
     <header className="border-b border-gray-200 dark:border-gray-100/50 bg-background sticky top-0 z-40">
-      <div className="p-4 px-6 md:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="p-4  md:px-8 flex items-center justify-between">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
@@ -72,17 +72,17 @@ export const Header = ({ Open }: HeaderProps) => {
           </Button>
           <h1 className="text-2xl font-extrabold">Timly</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {!isToday && (
             <Button
               variant="outline"
               onClick={() => {
                 setDate(toJSTDate());
               }}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 mr-0.5"
             >
               <CalendarClock className="h-4 w-4 mr-1" />
-              今日に戻す
+              今日
             </Button>
           )}
           <ThemeToggle />

@@ -199,7 +199,7 @@ export function Calendar({ instanceId }: CalendarProps) {
       </CardContent>
 
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/30 z-50">
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-500/10 backdrop-blur-[1px] rounded-xl z-50">
           <LoadingSpinner className="text-primary" />
         </div>
       )}

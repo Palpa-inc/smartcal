@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendars } from "./side-menu/calendars";
 import { Keywords } from "./side-menu/keywords";
 import { Calendar } from "../calendar/base-calendar";
@@ -40,10 +40,24 @@ const SidebarContent = ({
 export const Sidebar = ({ openSidebar, Close }: SidebarProps) => {
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
   const [isTantitive, setIsTantitive] = useState(false);
+
+  // サイドバーが開いている時に body の overflow を制御
+  useEffect(() => {
+    if (openSidebar) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [openSidebar]);
+
   const handleCreateEventClick = (isTantitive: boolean) => {
     setCreateEventDialogOpen(true);
     setIsTantitive(isTantitive);
   };
+
   return (
     <>
       {/* デスクトップ表示 */}
@@ -59,12 +73,12 @@ export const Sidebar = ({ openSidebar, Close }: SidebarProps) => {
         {/* オーバーレイ */}
         {openSidebar && (
           <div
-            className="fixed inset-0 bg-black/50 z-50 md:hidden"
+            className="fixed inset-0 bg-black/50 z-50 md:hidden pointer-events-auto"
             onClick={Close}
           />
         )}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-64 min-w-64 bg-white dark:bg-background border-r border-gray-200 dark:border-gray-700 p-4 transform transition-transform duration-300 ease-in-out md:hidden ${
+          className={`fixed inset-y-0 left-0 z-50 overflow-y-auto w-64 min-w-64 bg-white dark:bg-background border-r border-gray-200 dark:border-gray-700 p-4 transform transition-transform duration-300 ease-in-out md:hidden ${
             openSidebar ? "translate-x-0" : "-translate-x-full"
           }`}
         >
