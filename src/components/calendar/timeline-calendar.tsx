@@ -253,7 +253,7 @@ const TimelineCalendar: React.FC = () => {
             {getAllDayEvents(day).map((event) => (
               <div
                 key={`${event.id}-timeline-calendar`}
-                className="m-1 p-1 rounded-md shadow-sm text-sm cursor-pointer overflow-hidden"
+                className="absolute left-0 right-0 m-1 p-1 rounded-md shadow-sm text-sm max-w-full whitespace-nowrap cursor-pointer overflow-hidden"
                 style={{
                   backgroundColor: calendars.find(
                     (calendar) => calendar.email === event.parentEmail
@@ -266,6 +266,10 @@ const TimelineCalendar: React.FC = () => {
                       (calendar) => calendar.email === event.parentEmail
                     )?.color?.foreground
                   }`,
+                }}
+                onClick={() => {
+                  setSelectedEvent(event);
+                  setIsOpen(true);
                 }}
               >
                 {event.summary}

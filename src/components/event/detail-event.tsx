@@ -20,9 +20,9 @@ export function EventDialog({ event, isOpen, onClose }: EventDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="rounded-xl">
         <DialogHeader>
-          <DialogTitle>{event.summary}</DialogTitle>
+          <DialogTitle className="text-left">{event.summary}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 max-h-[75svh] overflow-y-auto">
           <div>

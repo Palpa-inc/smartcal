@@ -249,7 +249,7 @@ export function CreateEventDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="rounded-xl">
         <DialogHeader>
           <DialogTitle>
             {isTantitive ? "仮押さえ候補日を作成" : "予定を作成"}
