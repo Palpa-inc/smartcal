@@ -10,7 +10,6 @@ import { CalendarEvent } from "@/types/calendar";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import { ja } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LoadingSpinner } from "../ui/loading-spinner";
 import { EventDialog } from "../event/detail-event";
 
 const TimelineCalendar: React.FC = () => {
