@@ -15,7 +15,8 @@ import {
 
 export const getCalendarDataFromFirestore = async (userId: string) => {
   if (!userId) {
-    throw new Error("userId is required");
+    console.log("userId is required");
+    return;
   }
 
   const userCalendarsRef = collection(db, "calendars", userId, "accounts");
@@ -48,13 +49,16 @@ export const saveCalendarDataToFirestore = async (
 ) => {
   console.log("saveCalendarDataToFirestore", userId, email, data);
   if (!userId) {
-    throw new Error("userId is required but was not provided");
+    console.log("userId is required but was not provided");
+    return;
   }
   if (!email) {
-    throw new Error("email is required but was not provided");
+    console.log("email is required but was not provided");
+    return;
   }
   if (!data) {
-    throw new Error("calendar data is required but was not provided");
+    console.log("calendar data is required but was not provided");
+    return;
   }
 
   const userCalendarsRef = collection(db, "calendars", userId, "accounts");
@@ -93,9 +97,18 @@ export const updateCalendarColorInFirestore = async (
   calendarId: string,
   color: { background: string; foreground: string }
 ) => {
-  if (!userId) throw new Error("userId is required");
-  if (!email) throw new Error("email is required");
-  if (!calendarId) throw new Error("calendarId is required");
+  if (!userId) {
+    console.error("userId is required");
+    return;
+  }
+  if (!email) {
+    console.error("email is required");
+    return;
+  }
+  if (!calendarId) {
+    console.error("calendarId is required");
+    return;
+  }
   if (!color) throw new Error("color is required");
 
   const userCalendarsRef = collection(db, "calendars", userId, "accounts");
@@ -103,7 +116,8 @@ export const updateCalendarColorInFirestore = async (
 
   const docSnap = await getDoc(calendarDoc);
   if (!docSnap.exists()) {
-    throw new Error("Calendar document not found");
+    console.error("Calendar document not found");
+    return;
   }
 
   const currentData = docSnap.data();
@@ -127,7 +141,8 @@ export const subscribeToCalendarUpdates = (
   callback: (calendarData: CalendarDataByEmail) => void
 ) => {
   if (!userId) {
-    throw new Error("userId is required");
+    console.error("userId is required");
+    return;
   }
 
   const userCalendarsRef = collection(db, "calendars", userId, "accounts");

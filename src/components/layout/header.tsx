@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCalendar } from "@/contexts/CalendarContext";
 import { useAuth } from "@/hooks/useAuth";
+import { toJSTDate } from "@/lib/utils";
 
 interface HeaderProps {
   Open: () => void;
@@ -58,7 +59,7 @@ export const Header = ({ Open }: HeaderProps) => {
   );
 
   return (
-    <header className="border-b border-gray-200 dark:border-gray-100/50 bg-background sticky top-0 z-50">
+    <header className="border-b border-gray-200 dark:border-gray-100/50 bg-background sticky top-0 z-[99]">
       <div className="p-4 px-6 md:px-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
@@ -76,9 +77,7 @@ export const Header = ({ Open }: HeaderProps) => {
             <Button
               variant="outline"
               onClick={() => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                setDate(today);
+                setDate(toJSTDate());
               }}
               className="flex items-center gap-1"
             >

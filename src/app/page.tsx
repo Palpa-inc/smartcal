@@ -3,7 +3,8 @@ import { CalendarProvider } from "@/contexts/CalendarContext";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Calendar } from "@/components/calendar/base-calendar";
-import { EventList } from "@/components/calendar/base-event";
+import { EventList } from "@/components/event/base-event";
+import TimelineCalendar from "@/components/calendar/timeline-calendar";
 import { useState } from "react";
 
 export default function Home() {
@@ -24,9 +25,10 @@ export default function Home() {
             Close={() => setOpenSidebar(false)}
           />
           {/* メインコンテンツ */}
-          <main className="flex flex-col flex-1 bg-transparent p-6 gap-4 overflow-y-auto">
-            <Calendar instanceId="main" />
-            <EventList />
+          <main className="flex flex-col flex-auto bg-transparent p-6 gap-4 overflow-hidden transition-all duration-300">
+            <TimelineCalendar />
+            {/* <Calendar instanceId="main" /> */}
+            {/* <EventList /> */}
           </main>
         </div>
       </div>

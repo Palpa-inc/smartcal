@@ -13,6 +13,9 @@ import { VideoIcon } from "lucide-react";
 import { cn, formatDateOnly, formatTime, getTimeStatus } from "@/lib/utils";
 import { useCalendar } from "@/contexts/CalendarContext";
 import { getEventsForDate, sortEventsByTime } from "@/lib/calendar";
+import { EventDialog } from "@/components/event/detail-event";
+import { CreateEventDialog } from "@/components/event/create-event";
+import { CalendarEvent } from "@/types/calendar";
 
 const eventVariants_1: Variants = {
   initial: { opacity: 0, y: 15 },
@@ -28,6 +31,12 @@ const eventVariants_2: Variants = {
 
 export function EventList() {
   const { allEvents, calendars, date, setDate } = useCalendar();
+  const [isOpen, setIsOpen] = useState(false);
+  const [CreateEventDialogOpen, setCreateEventDialogOpen] = useState(false);
+  const [isTantitive, setIsTantitive] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
 
   // スライド方向を追跡するための状態を追加
   const [, setSlideDirection] = useState(0);
@@ -43,6 +52,16 @@ export function EventList() {
 
   const eventsForDate = getEventsForDate(allEvents, date);
   const sortedEvents = sortEventsByTime(eventsForDate);
+
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsOpen(true);
+  };
+
+  const handleCreateEventClick = (isTantitive: boolean) => {
+    setCreateEventDialogOpen(true);
+    setIsTantitive(isTantitive);
+  };
 
   return (
     <div className="min-h-0">
@@ -78,11 +97,14 @@ export function EventList() {
             </Button>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => {}}>
+            <Button onClick={() => handleCreateEventClick(false)}>
               <CalendarPlus className="h-4 w-4 mr-2" />
               予定を作成
             </Button>
-            <Button variant="outline" onClick={() => {}}>
+            <Button
+              variant="outline"
+              onClick={() => handleCreateEventClick(true)}
+            >
               <CalendarClock className="h-4 w-4 mr-2" />
               仮押さえ
             </Button>
@@ -113,7 +135,7 @@ export function EventList() {
                           return (
                             <div
                               key={event.id}
-                              onClick={() => {}}
+                              onClick={() => handleEventClick(event)}
                               className={eventListStyles.allDayEvent}
                               style={{
                                 backgroundColor: calendars.find(
@@ -214,7 +236,7 @@ export function EventList() {
                                 </label>
 
                                 <div
-                                  onClick={() => {}}
+                                  onClick={() => handleEventClick(event)}
                                   className={cn(
                                     eventListStyles.eventCard.base,
                                     {
@@ -326,6 +348,17 @@ export function EventList() {
           </AnimatePresence>
         </CardContent>
       </Card>
+      {/* ダイアログ */}
+      <EventDialog
+        event={selectedEvent}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
+      <CreateEventDialog
+        isOpen={CreateEventDialogOpen}
+        onClose={() => setCreateEventDialogOpen(false)}
+        isTantitive={isTantitive}
+      />
     </div>
   );
 }

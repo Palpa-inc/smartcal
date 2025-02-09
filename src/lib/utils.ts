@@ -32,8 +32,7 @@ export const formatDateOnly = (date: Date | string) => {
 };
 
 export function toJSTDate(date: Date = new Date()): Date {
-  // Always apply JST offset regardless of environment
-  const jstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-  jstDate.setUTCHours(0, 0, 0, 0);
+  const jstDate = new Date(date);
+  jstDate.setHours(0, 0, 0, 0);
   return jstDate;
 }

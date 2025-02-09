@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { EyeOff } from "lucide-react";
@@ -9,8 +9,14 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Keywords = () => {
   const { userData } = useAuth();
-  const [isKeywordOpen, setIsKeywordOpen] = useState(true);
+  const [isKeywordOpen, setIsKeywordOpen] = useState(false);
   const [newKeyword, setNewKeyword] = useState("");
+
+  useEffect(() => {
+    if (userData?.hideKeywords) {
+      setIsKeywordOpen(userData.hideKeywords.length === 0);
+    }
+  }, [userData]);
 
   const handleAddKeywords = async () => {
     if (newKeyword.trim() && userData?.uid) {
@@ -51,7 +57,7 @@ export const Keywords = () => {
                   <Badge
                     key={keyword}
                     variant="outline"
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 dark:border-gray-100/50"
                   >
                     {keyword}
                     <button
@@ -71,7 +77,7 @@ export const Keywords = () => {
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
                 placeholder="キーワードを入力"
-                className="text-sm"
+                className="text-sm dark:border-gray-100/50"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleAddKeywords();

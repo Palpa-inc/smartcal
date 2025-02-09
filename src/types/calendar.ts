@@ -47,3 +47,23 @@ export interface CalendarDataByEmail {
     lastUpdated: Date;
   };
 }
+
+export interface NewCalendarEvent {
+  summary: string; // イベントのタイトル
+  description?: string; // イベントの説明
+  start: {
+    // 開始日時
+    dateTime: string;
+    timeZone: string;
+  };
+  end: {
+    // 終了日時
+    dateTime: string;
+    timeZone: string;
+  };
+  calendarId: string; // カレンダーのID
+  attendees?: {
+    // 参加者情報
+    email: string;
+  }[];
+}

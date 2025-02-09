@@ -13,6 +13,7 @@ import {
   getAdjustedMonthDate,
 } from "@/lib/calendar";
 import { motion } from "framer-motion";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 interface CalendarProps {
   instanceId: string;
@@ -197,7 +198,7 @@ export function Calendar({ instanceId }: CalendarProps) {
 
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Loader className="h-6 w-6 animate-spin" />
+          <LoadingSpinner />
         </div>
       )}
     </Card>

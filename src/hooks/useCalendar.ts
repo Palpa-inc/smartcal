@@ -86,7 +86,10 @@ export function useGoogleCalendar(userId: string) {
       }
       // 保存したデータを取得
       const firestoreData = await getCalendarDataFromFirestore(userId);
-
+      if (!firestoreData) {
+        console.error("firestoreData is undefined");
+        return;
+      }
       setAccounts(firestoreData);
     } catch (err) {
       console.error("Error in refreshCalendarData:", err);
@@ -127,7 +130,7 @@ export function useGoogleCalendar(userId: string) {
         if (!data || staleEmails.length > 0) {
           // 古いデータを持つメールアドレスのみ更新
           for (const email of staleEmails) {
-            if (email === session?.user.email) {
+            if (data && email === session?.user.email) {
               await refreshCalendarData(data[email].calendars);
               return;
             } else {
@@ -137,6 +140,11 @@ export function useGoogleCalendar(userId: string) {
               );
             }
           }
+        }
+
+        if (!data) {
+          console.error("data is undefined");
+          return;
         }
 
         setAccounts(data);
