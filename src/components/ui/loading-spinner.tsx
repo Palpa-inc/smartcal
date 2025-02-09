@@ -1,7 +1,7 @@
 export function LoadingSpinner({ className }: { className?: string }) {
   return (
     <svg
-      className={`animate-spin -ml-1 mr-2 h-4 w-4 ${className || ""}`}
+      className={`animate-spin h-6 w-6 ${className || ""}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

@@ -194,236 +194,233 @@ const TimelineCalendar: React.FC = () => {
   );
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-[calc(100vh-120px)] overflow-auto bg-white rounded-xl"
-    >
-      {/* ヘッダー（曜日） */}
-      <div className="z-40 grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
-        <div className="border-b p-2 dark:border-gray-200 text-sm font-medium rounded-tl-xl flex items-center justify-between">
-          <button
-            onClick={() => handleWeekChange("prev")}
-            className="hover:bg-blue-50 rounded p-1"
-            aria-label="前の週"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => handleWeekChange("next")}
-            className="hover:bg-blue-50 rounded p-1"
-            aria-label="次の週"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-        {weekDays.map((day, index) => (
-          <div
-            key={day.toString()}
-            className={`hover:bg-blue-50 hover:dark:text-blue-500 cursor-pointer border-b ${
-              index < 6 ? "border-r" : "rounded-tr-xl" // 最後の列以外にborder-rを適用
-            } ${
-              index === 0 ? "border-l" : ""
-            } border-gray-200 p-1 text-center ${
-              isSameDay(day, date) ? "bg-blue-50 text-blue-500 " : ""
-            } `}
-            onClick={() => setDate(day)}
-          >
-            <div className="text-sm font-medium">
-              {format(day, "d", { locale: ja })}
-            </div>
-            <div className="text-xs">{format(day, "E", { locale: ja })}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* 終日予定セクションを追加 */}
-      <div className="grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200">
-        <div className="bg-background border-r border-b border-gray-200 p-2 pl-6 text-sm flex items-center">
-          終日
-        </div>
-        {weekDays.map((day, index) => (
-          <div
-            key={`allday-${day}`}
-            className={`border-b ${
-              index < 6 ? "border-r" : ""
-            } border-gray-100 relative min-h-[60px] ${
-              isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
-            }`}
-          >
-            {getAllDayEvents(day).map((event) => (
-              <div
-                key={`${event.id}-timeline-calendar`}
-                className="absolute left-0 right-0 m-1 p-1 rounded-md shadow-sm text-sm max-w-full whitespace-nowrap cursor-pointer overflow-hidden"
-                style={{
-                  backgroundColor: calendars.find(
-                    (calendar) => calendar.email === event.parentEmail
-                  )?.color?.background,
-                  color: calendars.find(
-                    (calendar) => calendar.email === event.parentEmail
-                  )?.color?.foreground,
-                  border: `1px solid ${
-                    calendars.find(
-                      (calendar) => calendar.email === event.parentEmail
-                    )?.color?.foreground
-                  }`,
-                }}
-                onClick={() => {
-                  setSelectedEvent(event);
-                  setIsOpen(true);
-                }}
-              >
-                {event.summary}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* タイムライン */}
-      {timeSlots.map((hour) => {
-        return (
-          <div
-            key={hour}
-            className={`grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200 ${
-              hour === 23 ? "rounded-bl-xl" : ""
-            }`}
-          >
-            <div
-              className={`bg-background border-r ${
-                hour < 23 ? "border-b" : "rounded-bl-xl"
-              } border-gray-200 p-2 text-sm flex justify-between items-center pl-5`}
+    <>
+      <div
+        ref={containerRef}
+        className="w-full h-[calc(100vh-120px)] relative overflow-auto bg-white rounded-xl"
+      >
+        {/* ヘッダー（曜日） */}
+        <div className="z-30 grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
+          <div className="border-b p-2 dark:border-gray-200 text-sm font-medium rounded-tl-xl flex items-center justify-between">
+            <button
+              onClick={() => handleWeekChange("prev")}
+              className="hover:bg-blue-50 rounded p-1"
+              aria-label="前の週"
             >
-              {`${hour.toString().padStart(2, "0")}:00`}
-            </div>
-            {weekDays.map((day, index) => {
-              const hasEventsFirstHalf = hasEventsInTimeSlot(
-                hour,
-                day,
-                "first"
-              );
-              const hasEventsSecondHalf = hasEventsInTimeSlot(
-                hour,
-                day,
-                "second"
-              );
-              const isFullHourEmpty =
-                !hasEventsFirstHalf && !hasEventsSecondHalf;
-
-              return (
-                <div
-                  key={`${day}-${hour}`}
-                  className={` ${hour < 23 ? "border-b" : ""} ${
-                    index < 6 ? "border-r" : ""
-                  } border-gray-100 relative min-h-[60px] ${
-                    isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
-                  }`}
-                >
-                  {/* 1時間全体が空いている場合 */}
-                  {!loading && (
-                    <>
-                      {isFullHourEmpty ? (
-                        <div
-                          className={`absolute inset-1 border border-dashed rounded-md ${
-                            isSameDay(day, date)
-                              ? "bg-background/20 border-green-300"
-                              : "bg-green-50/10 dark:bg-green-50/40 border-green-300/40 dark:border-green-600/40 "
-                          } pointer-events-none z-10`}
-                          style={{
-                            top: "4px",
-                            height: "52px",
-                          }}
-                        />
-                      ) : (
-                        <>
-                          {/* 前半30分の空き時間 */}
-                          {!hasEventsFirstHalf && (
-                            <div
-                              className={`absolute inset-1 border border-dashed rounded-md ${
-                                isSameDay(day, date)
-                                  ? "bg-background/20 border-green-300"
-                                  : "bg-green-50/10 dark:bg-green-50/40 border-green-300/40 dark:border-green-600/40"
-                              } pointer-events-none z-10`}
-                              style={{
-                                top: "4px",
-                                height: "24px",
-                              }}
-                            />
-                          )}
-                          {/* 後半30分の空き時間 */}
-                          {!hasEventsSecondHalf && (
-                            <div
-                              className={`absolute inset-1 border border-dashed rounded-md ${
-                                isSameDay(day, date)
-                                  ? "bg-background/20 border-green-300"
-                                  : "bg-green-50/10 dark:bg-green-50/40 border-green-300/40 dark:border-green-600/40"
-                              } pointer-events-none z-10`}
-                              style={{
-                                top: "34px",
-                                height: "22px",
-                              }}
-                            />
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
-                  {getEventsForHourAndDay(hour, day).map((event) => {
-                    // 既に表示済みのイベントはスキップ
-                    if (isEventAlreadyDisplayed(event, index, hour)) {
-                      return null;
-                    }
-
-                    const consecutiveDays = getConsecutiveDays(
-                      event,
-                      index,
-                      hour
-                    );
-                    const eventStyle = calculateEventStyle(event);
-
-                    return (
-                      <div
-                        key={`${event.id}-${index}-${event.parentEmail}-timeline-calendar`}
-                        className={`absolute left-0 right-1 ml-1 mt-0.5 pt-0.5 pl-1.5 border border-gray-100 rounded-md shadow-sm text-sm transition-colors cursor-pointer whitespace-nowrap overflow-hidden`}
-                        style={{
-                          ...eventStyle,
-                          width: `calc(${consecutiveDays * 100}% - 8px)`,
-                          zIndex: consecutiveDays === 1 ? 20 : 10, // 単発の予定は z-index を高く設定
-                          backgroundColor: calendars.find(
-                            (calendar) => calendar.email === event.parentEmail
-                          )?.color?.background,
-                          color: calendars.find(
-                            (calendar) => calendar.email === event.parentEmail
-                          )?.color?.foreground,
-                        }}
-                        onClick={() => {
-                          setSelectedEvent(event);
-                          setIsOpen(true);
-                        }}
-                      >
-                        <div className="flex items-center gap-1 mt-0.5">
-                          {event.summary}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleWeekChange("next")}
+              className="hover:bg-blue-50 rounded p-1"
+              aria-label="次の週"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
-        );
-      })}
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <LoadingSpinner />
+          {weekDays.map((day, index) => (
+            <div
+              key={day.toString()}
+              className={`hover:bg-blue-50 hover:dark:text-blue-500 cursor-pointer border-b ${
+                index < 6 ? "border-r" : "rounded-tr-xl" // 最後の列以外にborder-rを適用
+              } ${
+                index === 0 ? "border-l" : ""
+              } border-gray-200 p-1 text-center ${
+                isSameDay(day, date) ? "bg-blue-50 text-blue-500 " : ""
+              } `}
+              onClick={() => setDate(day)}
+            >
+              <div className="text-sm font-medium">
+                {format(day, "d", { locale: ja })}
+              </div>
+              <div className="text-xs">{format(day, "E", { locale: ja })}</div>
+            </div>
+          ))}
         </div>
-      )}
 
-      <EventDialog
-        event={selectedEvent}
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-      />
-    </div>
+        {/* 終日予定セクションを追加 */}
+        <div className="grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200">
+          <div className="bg-background border-r border-b border-gray-200 p-2 pl-6 text-sm flex items-center">
+            終日
+          </div>
+          {weekDays.map((day, index) => (
+            <div
+              key={`allday-${day}`}
+              className={`border-b ${
+                index < 6 ? "border-r" : ""
+              } border-gray-100 relative min-h-[60px] ${
+                isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
+              }`}
+            >
+              {getAllDayEvents(day).map((event) => (
+                <div
+                  key={`${event.id}-timeline-calendar`}
+                  className="absolute left-0 right-0 m-1 p-1 rounded-md shadow-sm text-sm max-w-full whitespace-nowrap cursor-pointer overflow-hidden"
+                  style={{
+                    backgroundColor: calendars.find(
+                      (calendar) => calendar.email === event.parentEmail
+                    )?.color?.background,
+                    color: calendars.find(
+                      (calendar) => calendar.email === event.parentEmail
+                    )?.color?.foreground,
+                    border: `1px solid ${
+                      calendars.find(
+                        (calendar) => calendar.email === event.parentEmail
+                      )?.color?.foreground
+                    }`,
+                  }}
+                  onClick={() => {
+                    setSelectedEvent(event);
+                    setIsOpen(true);
+                  }}
+                >
+                  {event.summary}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* タイムライン */}
+        {timeSlots.map((hour) => {
+          return (
+            <div
+              key={hour}
+              className={`grid grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200 ${
+                hour === 23 ? "rounded-bl-xl" : ""
+              }`}
+            >
+              <div
+                className={`bg-background border-r ${
+                  hour < 23 ? "border-b" : "rounded-bl-xl"
+                } border-gray-200 p-2 text-sm flex justify-between items-center pl-5`}
+              >
+                {`${hour.toString().padStart(2, "0")}:00`}
+              </div>
+              {weekDays.map((day, index) => {
+                const hasEventsFirstHalf = hasEventsInTimeSlot(
+                  hour,
+                  day,
+                  "first"
+                );
+                const hasEventsSecondHalf = hasEventsInTimeSlot(
+                  hour,
+                  day,
+                  "second"
+                );
+                const isFullHourEmpty =
+                  !hasEventsFirstHalf && !hasEventsSecondHalf;
+
+                return (
+                  <div
+                    key={`${day}-${hour}`}
+                    className={` ${hour < 23 ? "border-b" : ""} ${
+                      index < 6 ? "border-r" : ""
+                    } border-gray-100 relative min-h-[60px] ${
+                      isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
+                    }`}
+                  >
+                    {/* 1時間全体が空いている場合 */}
+                    {!loading && (
+                      <>
+                        {isFullHourEmpty ? (
+                          <div
+                            className={`absolute inset-1 border border-dashed rounded-md ${
+                              isSameDay(day, date)
+                                ? "bg-background/20 border-green-300"
+                                : "bg-green-50/10 dark:bg-green-50/40 border-green-300/40 dark:border-green-600/40 "
+                            } pointer-events-none z-10`}
+                            style={{
+                              top: "4px",
+                              height: "52px",
+                            }}
+                          />
+                        ) : (
+                          <>
+                            {/* 前半30分の空き時間 */}
+                            {!hasEventsFirstHalf && (
+                              <div
+                                className={`absolute inset-1 border border-dashed rounded-md ${
+                                  isSameDay(day, date)
+                                    ? "bg-background/20 border-green-300"
+                                    : "bg-green-50/10 dark:bg-green-50/40 border-green-300/40 dark:border-green-600/40"
+                                } pointer-events-none z-10`}
+                                style={{
+                                  top: "4px",
+                                  height: "24px",
+                                }}
+                              />
+                            )}
+                            {/* 後半30分の空き時間 */}
+                            {!hasEventsSecondHalf && (
+                              <div
+                                className={`absolute inset-1 border border-dashed rounded-md ${
+                                  isSameDay(day, date)
+                                    ? "bg-background/20 border-green-300"
+                                    : "bg-green-50/10 dark:bg-green-50/40 border-green-300/40 dark:border-green-600/40"
+                                } pointer-events-none z-10`}
+                                style={{
+                                  top: "34px",
+                                  height: "22px",
+                                }}
+                              />
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                    {getEventsForHourAndDay(hour, day).map((event) => {
+                      // 既に表示済みのイベントはスキップ
+                      if (isEventAlreadyDisplayed(event, index, hour)) {
+                        return null;
+                      }
+
+                      const consecutiveDays = getConsecutiveDays(
+                        event,
+                        index,
+                        hour
+                      );
+                      const eventStyle = calculateEventStyle(event);
+
+                      return (
+                        <div
+                          key={`${event.id}-${index}-${event.parentEmail}-timeline-calendar`}
+                          className={`absolute left-0 right-1 ml-1 mt-0.5 pt-0.5 pl-1.5 border border-gray-100 rounded-md shadow-sm text-sm transition-colors cursor-pointer whitespace-nowrap overflow-hidden`}
+                          style={{
+                            ...eventStyle,
+                            width: `calc(${consecutiveDays * 100}% - 8px)`,
+                            zIndex: consecutiveDays === 1 ? 20 : 10, // 単発の予定は z-index を高く設定
+                            backgroundColor: calendars.find(
+                              (calendar) => calendar.email === event.parentEmail
+                            )?.color?.background,
+                            color: calendars.find(
+                              (calendar) => calendar.email === event.parentEmail
+                            )?.color?.foreground,
+                          }}
+                          onClick={() => {
+                            setSelectedEvent(event);
+                            setIsOpen(true);
+                          }}
+                        >
+                          <div className="flex items-center gap-1 mt-0.5">
+                            {event.summary}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+
+        <EventDialog
+          event={selectedEvent}
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
+      </div>
+    </>
   );
 };
 
