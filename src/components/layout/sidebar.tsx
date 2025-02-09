@@ -47,7 +47,7 @@ export const Sidebar = ({ openSidebar, Close }: SidebarProps) => {
   return (
     <>
       {/* デスクトップ表示 */}
-      <aside className="hidden md:block w-64 min-w-64 bg-white dark:bg-background border-r border-gray-200 dark:border-gray-700 p-4 z-50">
+      <aside className="hidden md:block w-64 min-w-64 bg-white dark:bg-background border-r border-gray-200 dark:border-gray-700 p-4 z-30">
         <SidebarContent
           handleCreateEventClick={handleCreateEventClick}
           instanceId="desktop-sidebar"

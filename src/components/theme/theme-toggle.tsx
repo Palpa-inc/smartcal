@@ -8,6 +8,25 @@ import { motion } from "framer-motion";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  // マウント後にコンポーネントを表示
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // マウント前は空のボタンを表示
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative rounded-full border dark:border-gray-50/20"
+      >
+        <span className="sr-only">テーマを切り替える</span>
+      </Button>
+    );
+  }
 
   return (
     <Button
