@@ -132,9 +132,10 @@ const TimelineCalendar: React.FC = () => {
     const startMinutes = start.getHours() * 60 + start.getMinutes();
     const endMinutes = end.getHours() * 60 + end.getMinutes();
 
-    const topPosition = (startMinutes % 60) * (57 / 60);
+    const topPosition = (startMinutes % 60) * (56 / 60);
     const duration = endMinutes - startMinutes;
-    const height = (duration / 60) * 57;
+    const fixedDuration = duration === 15 ? 30 : duration;
+    const height = (fixedDuration / 60) * 55;
 
     return {
       top: `${topPosition}px`,
@@ -200,81 +201,74 @@ const TimelineCalendar: React.FC = () => {
     >
       {/* ヘッダー（曜日） */}
       <div className="z-30 grid grid-cols-[55px_repeat(7,1fr)] md:grid-cols-[80px_repeat(7,1fr)] sticky top-0 bg-background text-foreground border-t border-x border-gray-200 rounded-t-xl shadow-sm">
-        <div className="border-b p-2 dark:border-gray-200 text-sm font-medium rounded-tl-xl flex items-center justify-between">
-          <button
-            onClick={() => handleWeekChange("prev")}
-            className="hover:bg-blue-50 dark:hover:bg-blue-500 rounded"
-            aria-label="前の週"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => handleWeekChange("next")}
-            className="hover:bg-blue-50 dark:hover:bg-blue-500 rounded"
-            aria-label="次の週"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-        {weekDays.map((day, index) => (
-          <div
-            key={day.toString()}
-            className={`hover:bg-blue-50 hover:dark:text-blue-500 cursor-pointer border-b ${
-              index < 6 ? "border-r" : "rounded-tr-xl" // 最後の列以外にborder-rを適用
-            } ${
-              index === 0 ? "border-l" : ""
-            } border-gray-200 p-1 text-center ${
-              isSameDay(day, date) ? "bg-blue-50 text-blue-500 " : ""
-            } `}
-            onClick={() => setDate(day)}
-          >
-            <div className="text-sm font-medium">
-              {format(day, "d", { locale: ja })}
-            </div>
-            <div className="text-xs">{format(day, "E", { locale: ja })}</div>
+        <div className="flex flex-col flex-2">
+          <div className="border-b px-1 dark:border-gray-200 text-sm font-medium rounded-tl-xl flex gap-3 items-center justify-between min-h-[45px]">
+            <button
+              onClick={() => handleWeekChange("prev")}
+              className="hover:bg-blue-50 dark:hover:bg-blue-500 rounded"
+              aria-label="前の週"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleWeekChange("next")}
+              className="hover:bg-blue-50 dark:hover:bg-blue-500 rounded"
+              aria-label="次の週"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
-        ))}
-      </div>
-
-      {/* 終日予定セクションを追加 */}
-      <div className="grid grid-cols-[55px_repeat(7,1fr)] md:grid-cols-[80px_repeat(7,1fr)] text-foreground border-x border-gray-200">
-        <div className="bg-background border-r border-b border-gray-200 p-2 pl-[13px] md:pl-6 text-sm flex items-center">
-          終日
+          <div className="bg-background border-r border-b border-gray-200 p-2 pl-[13px] md:pl-6 text-sm flex items-center min-h-[40px]">
+            終日
+          </div>
         </div>
         {weekDays.map((day, index) => (
-          <div
-            key={`allday-${day}`}
-            className={`dark:bg-slate-700 border-b ${
-              index < 6 ? "border-r" : ""
-            } border-gray-100 relative min-h-[60px] ${
-              isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
-            }`}
-          >
-            {getAllDayEvents(day).map((event) => (
-              <div
-                key={`${event.id}-timeline-calendar`}
-                className="absolute left-0 right-0 m-1 p-1 rounded-md shadow-sm text-sm max-w-full whitespace-nowrap cursor-pointer overflow-hidden"
-                style={{
-                  backgroundColor: calendars.find(
-                    (calendar) => calendar.email === event.parentEmail
-                  )?.color?.background,
-                  color: calendars.find(
-                    (calendar) => calendar.email === event.parentEmail
-                  )?.color?.foreground,
-                  border: `1px solid ${
-                    calendars.find(
-                      (calendar) => calendar.email === event.parentEmail
-                    )?.color?.foreground
-                  }`,
-                }}
-                onClick={() => {
-                  setSelectedEvent(event);
-                  setIsOpen(true);
-                }}
-              >
-                {event.summary}
+          <div>
+            <div
+              key={day.toString()}
+              className={`hover:bg-blue-50 hover:dark:text-blue-500 cursor-pointer border-b ${
+                index < 6 ? "border-r" : "rounded-tr-xl" // 最後の列以外にborder-rを適用
+              } ${
+                index === 0 ? "border-l" : ""
+              } border-gray-200 p-1 text-center ${
+                isSameDay(day, date) ? "bg-blue-50 text-blue-500 " : ""
+              } `}
+              onClick={() => setDate(day)}
+            >
+              <div className="text-sm font-medium">
+                {format(day, "d", { locale: ja })}
               </div>
-            ))}
+              <div className="text-xs">{format(day, "E", { locale: ja })}</div>
+            </div>
+            <div
+              key={`allday-${day}`}
+              className={`dark:bg-slate-700 border-b ${
+                index < 6 ? "border-r" : ""
+              } border-gray-100 relative min-h-[40px] ${
+                isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
+              }`}
+            >
+              {getAllDayEvents(day).map((event) => (
+                <div
+                  key={`${event.id}-timeline-calendar`}
+                  className="absolute left-0 right-0 m-1 p-1 rounded-md shadow-sm text-sm max-w-full whitespace-nowrap cursor-pointer overflow-hidden"
+                  style={{
+                    backgroundColor: calendars.find(
+                      (calendar) => calendar.email === event.parentEmail
+                    )?.color?.background,
+                    color: calendars.find(
+                      (calendar) => calendar.email === event.parentEmail
+                    )?.color?.foreground,
+                  }}
+                  onClick={() => {
+                    setSelectedEvent(event);
+                    setIsOpen(true);
+                  }}
+                >
+                  {event.summary}
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -293,7 +287,9 @@ const TimelineCalendar: React.FC = () => {
               className={`bg-background border-r ${
                 hour < 23 ? "border-b" : "rounded-bl-xl"
               } border-gray-200 p-2 pl-[10px] md:pl-5 text-sm flex justify-between items-center ${
-                isCurrentHour ? "bg-yellow-100 text-yellow-500" : ""
+                isCurrentHour
+                  ? "bg-yellow-400 rounded-sm dark:bg-yellow-200 text-white dark:text-yellow-500 font-bold tracking-wide"
+                  : ""
               }`}
             >
               {`${hour.toString().padStart(2, "0")}:00`}
@@ -326,7 +322,11 @@ const TimelineCalendar: React.FC = () => {
                     index < 6 ? "border-r" : ""
                   } border-gray-100 relative min-h-[60px] ${
                     isSameDay(day, date) ? "bg-blue-200" : "bg-background/30"
-                  } ${isCurrentHour && isToday ? "bg-yellow-50" : ""}`}
+                  } ${
+                    isCurrentHour && isToday
+                      ? "bg-yellow-200 dark:bg-yellow-200"
+                      : ""
+                  }`}
                 >
                   {/* 1時間全体が空いている場合 */}
                   {!loading && (

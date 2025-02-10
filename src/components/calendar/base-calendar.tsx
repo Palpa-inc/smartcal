@@ -98,26 +98,28 @@ export function Calendar({ instanceId }: CalendarProps) {
     <Card className={calendarStyles.container}>
       <CardHeader className={calendarStyles.header}>
         <div className={calendarStyles.navigation}>
-          <Button
-            variant="ghost"
-            onClick={handlePrevMonth}
-            className={calendarStyles.navButton}
-          >
-            <ChevronLeft className={calendarStyles.navIcon} />
-          </Button>
           <h2 className={calendarStyles.title}>
             {currentDate.toLocaleDateString("ja-JP", {
               year: "numeric",
               month: "long",
             })}
           </h2>
-          <Button
-            variant="ghost"
-            onClick={handleNextMonth}
-            className={calendarStyles.navButton}
-          >
-            <ChevronRight className={calendarStyles.navIcon} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              onClick={handlePrevMonth}
+              className={calendarStyles.navButton}
+            >
+              <ChevronLeft className={calendarStyles.navIcon} />
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleNextMonth}
+              className={calendarStyles.navButton}
+            >
+              <ChevronRight className={calendarStyles.navIcon} />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className={calendarStyles.content}>
@@ -197,24 +199,19 @@ export function Calendar({ instanceId }: CalendarProps) {
           )}
         </div>
       </CardContent>
-
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-500/10 backdrop-blur-[1px] rounded-xl z-50">
-          <LoadingSpinner className="text-primary" />
-        </div>
-      )}
     </Card>
   );
 }
 
 const calendarStyles = {
-  container: "calendar relative bg-background dark:border-white/20",
-  header: "p-4 gap-2",
+  container:
+    "calendar relative border-none shadow-sm bg-background dark:border-white/20",
+  header: "p-2 pt-3 pl-4 gap-2",
   navigation: "flex items-center justify-between",
   navButton: "h-7 w-7 p-0",
   navIcon: "h-4 w-4",
   title: "font-semibold",
-  content: "p-4 pt-0",
+  content: "p-2 pt-0",
   grid: "grid grid-cols-7 gap-0",
   weekday: "h-6 flex items-center justify-center text-sm font-medium",
   day: "aspect-square p-0.5 relative cursor-pointer hover:bg-muted/50 rounded-md",

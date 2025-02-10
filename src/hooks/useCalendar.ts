@@ -103,6 +103,7 @@ export function useGoogleCalendar(userId: string) {
   const registerCalendarData = async (userId: string, email: string) => {
     if (!userId) {
       setError("ユーザーIDが見つかりません");
+      setLoading(false);
       return;
     }
 
@@ -114,8 +115,6 @@ export function useGoogleCalendar(userId: string) {
         email: string;
         events: CalendarEvent[];
       }>("/api/googleCalendar/" + email);
-
-      console.log("registerCalendarData data", data);
 
       await saveCalendarDataToFirestore(userId, email, {
         events: data.events,
@@ -132,9 +131,11 @@ export function useGoogleCalendar(userId: string) {
       const firestoreData = await getCalendarDataFromFirestore(userId);
       if (!firestoreData) {
         console.error("firestoreData is undefined");
+        setLoading(false);
         return;
       }
       setAccounts(firestoreData);
+      setLoading(false);
     } catch (err) {
       console.error("Error in registerCalendarData:", err);
     } finally {
@@ -166,7 +167,10 @@ export function useGoogleCalendar(userId: string) {
   // カレンダーのデータを読み込む
   useEffect(() => {
     const loadInitialData = async () => {
-      if (!session?.user.email) return;
+      if (!session?.user.email) {
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
@@ -184,7 +188,6 @@ export function useGoogleCalendar(userId: string) {
           for (const email of staleEmails) {
             if (data && email === session?.user.email) {
               await refreshCalendarData(data[email].calendars);
-              return;
             } else {
               console.log(
                 "not session account. current account",
@@ -192,6 +195,7 @@ export function useGoogleCalendar(userId: string) {
               );
               if (data && !data[session?.user.email]) {
                 await registerCalendarData(userId, session?.user.email);
+                return;
               }
             }
           }
@@ -217,12 +221,12 @@ export function useGoogleCalendar(userId: string) {
           }
         );
         setCalendars(allCalendars);
-        setLoading(false);
       } catch (err) {
         console.error("Error loading initial data:", err);
         setError(
           err instanceof Error ? err.message : "データの読み込みに失敗しました"
         );
+      } finally {
         setLoading(false);
       }
     };

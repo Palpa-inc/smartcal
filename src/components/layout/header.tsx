@@ -72,7 +72,7 @@ export const Header = ({ Open }: HeaderProps) => {
           </Button>
           <h1 className="text-2xl font-extrabold">Timly</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 md:gap-4">
           {!isToday && (
             <Button
               variant="outline"

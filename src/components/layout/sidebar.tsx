@@ -20,9 +20,10 @@ const SidebarContent = ({
   instanceId: string;
 }) => (
   <nav className="space-y-4">
+    <Calendar instanceId={instanceId} />
     <Calendars />
     <Keywords />
-    <Calendar instanceId={instanceId} />
+
     <div className="flex flex-col gap-3">
       <Button onClick={() => handleCreateEventClick(false)}>
         <CalendarPlus className="h-4 w-4 mr-1" />
