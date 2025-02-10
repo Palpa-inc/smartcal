@@ -410,7 +410,7 @@ const TimelineCalendar: React.FC = () => {
                           setIsOpen(true);
                         }}
                       >
-                        <div className="flex items-center gap-1 mt-0.5">
+                        <div className="flex items-center gap-1 mt-0.5 whitespace-pre-wrap">
                           {event.summary}
                         </div>
                       </div>
